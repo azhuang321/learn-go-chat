@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -28,7 +27,6 @@ func userLogin(writer http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 	mobile := request.PostForm.Get("mobile")
 	password := request.PostForm.Get("password")
-	fmt.Println(mobile)
 	loginOk := false
 
 	if mobile == "18612345678" && password == "123123" {
@@ -49,6 +47,8 @@ func main() {
 	//web 路由绑定
 	http.HandleFunc("/user/login", userLogin)
 
+	//指定静态访问目录
+	http.Handle("/asset/", http.FileServer(http.Dir(".")))
 	//启动web
 	http.ListenAndServe(":8080", nil)
 }
