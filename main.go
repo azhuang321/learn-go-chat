@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
 )
 
@@ -40,7 +41,17 @@ func userLogin(writer http.ResponseWriter, request *http.Request) {
 	} else {
 		Resp(writer, -1, nil, "密码不正确")
 	}
+}
 
+//注册视图
+func RegisterView() {
+	tpls, _ := template.ParseGlob("view/**/*")
+	for _, v := range tpls.Templates() {
+		tplName := v.Name()
+		http.HandleFunc(tplName, func(w http.ResponseWriter, r *http.Request) {
+			tpls.ExecuteTemplate(w, tplName, nil)
+		})
+	}
 }
 
 func main() {
@@ -49,6 +60,8 @@ func main() {
 
 	//指定静态访问目录
 	http.Handle("/asset/", http.FileServer(http.Dir(".")))
+
+	RegisterView()
 	//启动web
 	http.ListenAndServe(":8080", nil)
 }
