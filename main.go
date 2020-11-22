@@ -2,9 +2,28 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
 	"html/template"
+	"log"
 	"net/http"
 )
+
+var DbEngin *xorm.Engine
+
+func init() {
+	driverName := "mysql"
+	DsnName := "root:root@(127.0.0.1:3306)/chat?charset=utf8"
+	DbEngin, err := xorm.NewEngine(driverName, DsnName)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	DbEngin.ShowSQL(true)
+	DbEngin.SetMaxOpenConns(2)
+
+	fmt.Println("init database ok")
+}
 
 type H struct {
 	Code int         `json:"code"`
