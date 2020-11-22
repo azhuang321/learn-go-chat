@@ -5,6 +5,7 @@ import (
 	"chat/util"
 	"errors"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"math/rand"
 	"time"
 )
@@ -41,4 +42,27 @@ func (s *UserService) Register(
 	tmp.Token = fmt.Sprintf("%08d", rand.Int31())
 	_, err = DbEngin.InsertOne(&tmp)
 	return tmp, err
+}
+
+//登录函数
+func (s *UserService) Login(mobile, plainpwd string) (user model.User, err error) {
+
+	//首先通过手机号查询用户
+	tmp := model.User{}
+	DbEngin.Where("mobile = ?", mobile).Get(&tmp)
+	//如果没有找到
+	if tmp.Id == 0 {
+		return tmp, errors.New("该用户不存在")
+	}
+	//查询到了比对密码
+	if !util.ValidatePasswd(plainpwd, tmp.Salt, tmp.Passwd) {
+		return tmp, errors.New("密码不正确")
+	}
+	//刷新token,安全
+	str := fmt.Sprintf("%d", time.Now().Unix())
+	token := util.MD5Encode(str)
+	tmp.Token = token
+	//返回数据
+	DbEngin.ID(tmp.Id).Cols("token").Update(&tmp)
+	return tmp, nil
 }
