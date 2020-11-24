@@ -40,12 +40,21 @@ func (s *UserService) Register(
 	tmp.Createat = time.Now()
 	//token 可以是一个随机数
 	tmp.Token = fmt.Sprintf("%08d", rand.Int31())
+	//passwd =
+	//md5 加密
+	//返回新用户信息
+
+	//插入 InserOne
 	_, err = DbEngin.InsertOne(&tmp)
+	//前端恶意插入特殊字符
+	//数据库连接操作失败
 	return tmp, err
 }
 
 //登录函数
-func (s *UserService) Login(mobile, plainpwd string) (user model.User, err error) {
+func (s *UserService) Login(
+	mobile, //手机
+	plainpwd string) (user model.User, err error) {
 
 	//首先通过手机号查询用户
 	tmp := model.User{}
@@ -65,4 +74,14 @@ func (s *UserService) Login(mobile, plainpwd string) (user model.User, err error
 	//返回数据
 	DbEngin.ID(tmp.Id).Cols("token").Update(&tmp)
 	return tmp, nil
+}
+
+//查找某个用户
+func (s *UserService) Find(
+	userId int64) (user model.User) {
+
+	//首先通过手机号查询用户
+	tmp := model.User{}
+	DbEngin.ID(userId).Get(&tmp)
+	return tmp
 }
