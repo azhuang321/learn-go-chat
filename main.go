@@ -22,6 +22,12 @@ func main() {
 	http.HandleFunc("/user/login", ctrl.UserLogin)
 	http.HandleFunc("/user/register", ctrl.UserRegister)
 
+	http.HandleFunc("/contact/loadcommunity", ctrl.LoadCommunity)
+	http.HandleFunc("/contact/loadfriend", ctrl.LoadFriend)
+	http.HandleFunc("/contact/joincommunity", ctrl.JoinCommunity)
+	//http.HandleFunc("/contact/addfriend", ctrl.Addfriend)
+	http.HandleFunc("/contact/addfriend", ctrl.Addfriend)
+	//http.HandleFunc("/chat", ctrl.Chat)
 	//指定静态访问目录
 	http.Handle("/asset/", http.FileServer(http.Dir(".")))
 
