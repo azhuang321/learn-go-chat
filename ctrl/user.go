@@ -11,6 +11,14 @@ import (
 
 func UserLogin(writer http.ResponseWriter,
 	request *http.Request) {
+	//数据库操作
+	//逻辑处理
+	//restapi json/xml返回
+	//1.获取前端传递的参数
+	//mobile,passwd
+	//解析参数
+	//如何获得参数
+	//解析参数
 	request.ParseForm()
 
 	mobile := request.PostForm.Get("mobile")

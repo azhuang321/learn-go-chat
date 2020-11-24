@@ -73,6 +73,11 @@ var clientMap map[int64]*Node = make(map[int64]*Node, 0)
 var rwlocker sync.RWMutex
 
 //
+func init() {
+
+}
+
+//
 // ws://127.0.0.1/chat?id=1&token=xxxx
 func Chat(writer http.ResponseWriter,
 	request *http.Request) {
@@ -102,6 +107,11 @@ func Chat(writer http.ResponseWriter,
 		DataQueue: make(chan []byte, 50),
 		GroupSets: set.New(set.ThreadSafe),
 	}
+	//todo 获取用户全部群Id
+	comIds := contactService.SearchComunityIds(userId)
+	for _, v := range comIds {
+		node.GroupSets.Add(v)
+	}
 	//todo userid和node形成绑定关系
 	rwlocker.Lock()
 	clientMap[userId] = node
@@ -126,6 +136,19 @@ func sendproc(node *Node) {
 			}
 		}
 	}
+}
+
+//todo 添加新的群ID到用户的groupset中
+func AddGroupId(userId, gid int64) {
+	//取得node
+	rwlocker.Lock()
+	node, ok := clientMap[userId]
+	if ok {
+		node.GroupSets.Add(gid)
+	}
+	rwlocker.Unlock()
+
+	//添加gid到set
 }
 
 //接收协程
@@ -157,6 +180,14 @@ func dispatch(data []byte) {
 		sendMsg(msg.Dstid, data)
 	case CMD_ROOM_MSG:
 		//todo 群聊转发逻辑
+		rwlocker.Lock()
+		for _, v := range clientMap {
+			//
+			if v.GroupSets.Has(msg.Dstid) {
+				v.DataQueue <- data
+			}
+		}
+		rwlocker.Unlock()
 	case CMD_HEART:
 		//todo 一般啥都不做
 	}
